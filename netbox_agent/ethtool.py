@@ -40,7 +40,7 @@ class Ethtool():
         parse ethtool output
         """
 
-        output = subprocess.getoutput('ethtool {}'.format(self.interface))
+        output = subprocess.getoutput('sudo /usr/sbin/ethtool {}'.format(self.interface))
 
         fields = {}
         field = ''
@@ -64,12 +64,12 @@ class Ethtool():
         return fields
 
     def _parse_ethtool_module_output(self):
-        status, output = subprocess.getstatusoutput('ethtool -m {}'.format(self.interface))
-        if status == 0:
-            r = re.search(r'Identifier.*\((\w+)\)', output)
-            if r and len(r.groups()) > 0:
-                return {'form_factor': r.groups()[0]}
-        return {}
+        status, output = subprocess.getstatusoutput('sudo /usr/sbin/ethtool -m {}'.format(self.interface))
+        if status != 0:
+            return {}
+        r = re.search(r'Identifier.*\((\w+)\)', output)
+        if r and len(r.groups()) > 0:
+            return {'form_factor': r.groups()[0]}
 
     def parse(self):
         if which('ethtool') is None:

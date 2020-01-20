@@ -11,7 +11,7 @@ class LLDP():
         if output:
             self.output = output
         else:
-            self.output = subprocess.getoutput('lldpctl -f keyvalue')
+            self.output = subprocess.getoutput('sudo /usr/sbin/lldpctl -f keyvalue')
         self.data = self.parse()
 
     def parse(self):

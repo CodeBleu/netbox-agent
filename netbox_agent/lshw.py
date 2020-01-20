@@ -12,7 +12,7 @@ class LSHW():
             sys.exit(1)
 
         data = subprocess.getoutput(
-            'lshw -quiet -json'
+            'sudo /usr/sbin/lshw -quiet -json'
         )
         json_data = json.loads(data)
         # Starting from version 02.18, `lshw -json` wraps its result in a list
@@ -82,7 +82,7 @@ class LSHW():
                 for j in i["name"]:
                     if j.startswith("unknown"):
                         unkn_intfs.push(j)
-                        
+
         unkn_name = "unknown{}".format(len(unkn_intfs))
         self.interfaces.append({
             "name": obj.get("logicalname", unkn_name),
@@ -112,7 +112,7 @@ class LSHW():
             try:
                 nvme = json.loads(
                     subprocess.check_output(
-                        ["nvme", '-list', '-o', 'json'],
+                        ["sudo", "/usr/sbin/nvme", '-list', '-o', 'json'],
                         encoding='utf8')
                 )
                 for device in nvme["Devices"]:
