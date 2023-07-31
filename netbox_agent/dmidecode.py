@@ -1,3 +1,4 @@
+import os
 import logging
 import re as _re
 import subprocess as _subprocess
@@ -136,11 +137,28 @@ def get_by_type(data, type_id):
 
 
 def _execute_cmd():
-    if not is_tool('dmidecode'):
+    if is_tool('dmidecode'):
+    # Check if the user is root
+        if os.geteuid() != 0:
+            logging.warning("You're not running as root.")
+            logging.warning("Running 'dmidecode' command with 'sudo'.")
+            logging.warning("Please make sure user is given access to 'sudo dmidecode'\
+in the sudoers config without password needed""")
+            try:
+                result = _subprocess.check_output(['sudo', 'dmidecode', ], stderr=_subprocess.PIPE)
+            except _subprocess.CalledProcessError as error:
+                logging.error("Error executing dmidecode command: %s", error)
+        else:
+            try:
+                result = _subprocess.check_output(['dmidecode', ], stderr=_subprocess.PIPE)
+            except _subprocess.CalledProcessError as error:
+                logging.error("Error executing dmidecode command: %s", error)
+
+    else:
         logging.error('Dmidecode does not seem to be present on your system. Add it your path or '
                       'check the compatibility of this project with your distro.')
         sys.exit(1)
-    return _subprocess.check_output(['dmidecode', ], stderr=_subprocess.PIPE)
+    return result
 
 
 def _parse(buffer):
