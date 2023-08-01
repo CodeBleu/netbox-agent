@@ -1,6 +1,5 @@
 from netbox_agent.config import netbox_instance as nb
 from slugify import slugify
-from shutil import which
 import subprocess
 import socket
 import re
@@ -8,7 +7,12 @@ import re
 
 def is_tool(name):
     '''Check whether `name` is on PATH and marked as executable.'''
-    return which(name) is not None
+    try:
+        output = subprocess.check_output(['sudo', 'which', f'{name}'])
+        return output.decode().strip() is not None
+    except subprocess.CalledProcessError as sp_error:
+        error = sp_error.output.decode().strip()
+        print(f"Error: {error}")
 
 
 def get_device_role(role):
@@ -112,5 +116,3 @@ def get_mount_points():
         mp = mount_info[2]
         mount_points.setdefault(device, []).append(mp)
     return mount_points
-
-
