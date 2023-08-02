@@ -482,7 +482,7 @@ class ServerBase():
                 update += 1
             if update:
                 expansion.save()
-        logging.debug('Finished updating Server!')
+        logging.info('Finished updating Server!')
 
     def print_debug(self):
         self.network = ServerNetwork(server=self)

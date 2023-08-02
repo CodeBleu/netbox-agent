@@ -33,7 +33,7 @@ def get_config():
     p.add_argument('--expansion-as-device', action='store_true',
                    help='Manage blade expansions as external devices')
 
-    p.add_argument('--log_level', default='debug')
+    p.add_argument('--log_level', default='info')
     p.add_argument('--netbox.ssl_ca_certs_file', help='SSL CA certificates file')
     p.add_argument('--netbox.url', help='Netbox URL')
     p.add_argument('--netbox.token', help='Netbox API Token')
