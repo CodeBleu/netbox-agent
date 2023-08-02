@@ -10,7 +10,7 @@ class LSHW():
     def __init__(self):
         tool_path = is_tool('lshw')
 
-        logging.debug("Running 'lshw' command...")
+        logging.info("Running 'lshw' command...")
         try:
             if os.geteuid() != 0:
                 result = subprocess.run(['sudo', f'{tool_path}', '-quiet', '-json'],

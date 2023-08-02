@@ -45,7 +45,7 @@ class Ethtool():
         """
         tool_path = is_tool('ethtool')
 
-        logging.debug("Running 'ethtool' command on %s", self.interface)
+        logging.info("Running 'ethtool' command on %s", self.interface)
         try:
             if os.geteuid() != 0:
                 result = subprocess.run(['sudo', f'{tool_path}', f'{self.interface}' ],

@@ -140,7 +140,7 @@ def _execute_cmd():
 
     tool_path = is_tool('dmidecode')
 
-    logging.warning("Running 'dmidecode' command...")
+    logging.info("Running 'dmidecode' command...")
     try:
         if os.geteuid() != 0:
             result = subprocess.run(['sudo', f'{tool_path}', ],
