@@ -1,6 +1,10 @@
 import re
+import sys
+import os
+import logging
 import subprocess
 from shutil import which
+from netbox_agent.misc import is_tool
 
 #  Originally from https://github.com/opencoff/useful-scripts/blob/master/linktest.py
 
@@ -39,8 +43,24 @@ class Ethtool():
         """
         parse ethtool output
         """
+        tool_path = is_tool('ethtool')
 
-        output = subprocess.getoutput('sudo /usr/sbin/ethtool {}'.format(self.interface))
+        logging.debug("Running 'ethtool' command...")
+        try:
+            if os.geteuid() != 0:
+                result = subprocess.run(['sudo', f'{tool_path}', f'{self.interface}' ],
+                                        capture_output=True, check=True, text=True)
+            else:
+                result = subprocess.run([f'{tool_path}', f'{self.interface}' ],
+                                        capture_output=True, check=True, text=True)
+
+        except subprocess.CalledProcessError as error:
+            logging.error("Command failed wtih return code %d: %s", error.returncode, error.stdout)
+            logging.error("Error:\n%s", error.stderr)
+            sys.exit(1)
+
+
+        output = result.stdout
 
         fields = {}
         field = ''

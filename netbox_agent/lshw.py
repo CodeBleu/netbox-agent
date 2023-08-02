@@ -1,19 +1,31 @@
-from netbox_agent.misc import is_tool
+import os
 import subprocess
 import logging
 import json
 import sys
+from netbox_agent.misc import is_tool
 
 
 class LSHW():
     def __init__(self):
-        if not is_tool('lshw'):
-            logging.error('lshw does not seem to be installed')
+        tool_path = is_tool('lshw')
+
+        logging.debug("Running 'lshw' command...")
+        try:
+            if os.geteuid() != 0:
+                result = subprocess.run(['sudo', f'{tool_path}', '-quiet', '-json'],
+                                        capture_output=True, check=True, text=True)
+            else:
+                result = subprocess.run([f'{tool_path}', '-quiet', '-json'],
+                                        capture_output=True, check=True, text=True)
+
+        except subprocess.CalledProcessError as error:
+            logging.error("Command failed wtih return code %d: %s", error.returncode, error.stdout)
+            logging.error("Error:\n%s", error.stderr)
             sys.exit(1)
 
-        data = subprocess.getoutput(
-            'sudo /usr/sbin/lshw -quiet -json'
-        )
+        data = result.stdout
+
         json_data = json.loads(data)
         # Starting from version 02.18, `lshw -json` wraps its result in a list
         # rather than returning directly a dictionary

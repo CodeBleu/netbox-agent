@@ -1,7 +1,7 @@
 import os
 import logging
 import re as _re
-import subprocess as _subprocess
+import subprocess
 import sys
 
 from netbox_agent.misc import is_tool
@@ -137,28 +137,24 @@ def get_by_type(data, type_id):
 
 
 def _execute_cmd():
-    if is_tool('dmidecode'):
-    # Check if the user is root
-        if os.geteuid() != 0:
-            logging.warning("You're not running as root.")
-            logging.warning("Running 'dmidecode' command with 'sudo'.")
-            logging.warning("Please make sure user is given access to 'sudo dmidecode'\
-in the sudoers config without password needed""")
-            try:
-                result = _subprocess.check_output(['sudo', 'dmidecode', ], stderr=_subprocess.PIPE)
-            except _subprocess.CalledProcessError as error:
-                logging.error("Error executing dmidecode command: %s", error)
-        else:
-            try:
-                result = _subprocess.check_output(['dmidecode', ], stderr=_subprocess.PIPE)
-            except _subprocess.CalledProcessError as error:
-                logging.error("Error executing dmidecode command: %s", error)
 
-    else:
-        logging.error('Dmidecode does not seem to be present on your system. Add it your path or '
-                      'check the compatibility of this project with your distro.')
+    tool_path = is_tool('dmidecode')
+
+    logging.warning("Running 'dmidecode' command...")
+    try:
+        if os.geteuid() != 0:
+            result = subprocess.run(['sudo', f'{tool_path}', ],
+                                    capture_output=True, check=True, text=True)
+        else:
+            result = subprocess.run([f'{tool_path}', ],
+                                    capture_output=True, check=True, text=True)
+
+    except subprocess.CalledProcessError as error:
+        logging.error("Command failed wtih return code %d: %s", error.returncode, error.stdout)
+        logging.error("Error:\n%s", error.stderr)
         sys.exit(1)
-    return result
+
+    return result.stdout
 
 
 def _parse(buffer):

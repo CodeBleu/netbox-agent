@@ -1,18 +1,26 @@
 from netbox_agent.config import netbox_instance as nb
 from slugify import slugify
+import logging
 import subprocess
 import socket
+import sys
 import re
 
 
 def is_tool(name):
     '''Check whether `name` is on PATH and marked as executable.'''
     try:
-        output = subprocess.check_output(['sudo', 'which', f'{name}'])
-        return output.decode().strip() is not None
+        output = subprocess.run(['sudo', 'which', f'{name}'],
+                                capture_output=True, check=True, text=True)
+        return output.stdout
+        # return output.decode().strip() is not None
     except subprocess.CalledProcessError as sp_error:
-        error = sp_error.output.decode().strip()
-        print(f"Error: {error}")
+        logging.error('%s does not seem to be present on your system. Add it your path or '
+                      'check the compatibility of this project with your distro.', name)
+        logging.error("Command failed wtih return code %d: %s",
+                      sp_error.returncode, sp_error.stdout)
+        logging.error("Error:\n%s", sp_error.stderr)
+        sys.exit(1)
 
 
 def get_device_role(role):
