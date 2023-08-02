@@ -12,7 +12,7 @@ def is_tool(name):
     try:
         output = subprocess.run(['sudo', 'which', f'{name}'],
                                 capture_output=True, check=True, text=True)
-        return output.stdout
+        return output.stdout.strip()
         # return output.decode().strip() is not None
     except subprocess.CalledProcessError as sp_error:
         logging.error('%s does not seem to be present on your system. Add it your path or '
