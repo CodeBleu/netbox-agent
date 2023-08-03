@@ -43,7 +43,6 @@ def run(config):
         server.netbox_create_or_update(config)
     if config.debug:
         server.print_debug()
-    return True
 
 
 def main():
